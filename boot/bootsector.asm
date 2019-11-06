@@ -8,9 +8,13 @@
     sti
     mov bp, sp ; set the stack safely away from us
 
+    push BOOTLOADER_BANNER
+    call print_string
+    add sp, 2
+
 _disk_load:
     mov ah, 0x02 ; disk read code
-    mov al, 1   ; read 1 sector
+    mov al, 17 ; read num sectors
     mov ch, 0x00 ; cylinder 0
     ; dl <- drive number. Our caller sets it as a parameter and gets it from BIOS
     ; (0 = floppy, 1 = floppy2, 0x80 = hdd, 0x81 = hdd2)
@@ -19,8 +23,6 @@ _disk_load:
     mov bx, KERNEL_OFFSET
     int 0x13
     jc _disk_error ; if error (stored in the carry bit)
-    push BOOTLOADER_BANNER
-    call print_string
 
 enter_protected_mode:
 	cli ; disable irqs
@@ -50,9 +52,6 @@ _init_pm:
 	mov ebp, 0x9000
 	mov esp, ebp
 
-	push PROTECTED_MODE_MSG
-	call print_string_pm
-	add esp, 4
 	call KERNEL_OFFSET
 	jmp $
 
@@ -90,8 +89,7 @@ CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
 
 KERNEL_OFFSET equ 0x1000
-BOOTLOADER_BANNER: db "Mattos bootloader.", 0
-PROTECTED_MODE_MSG: db "Switched to protected mode, loading kernel...", 0
+BOOTLOADER_BANNER: db `Mattos bootloader.\r\n`, 0
 DISK_ERROR: db "Disk error", 0
 
 ; Magic number
