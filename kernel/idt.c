@@ -74,7 +74,7 @@ struct idt_info_struct {
 static_assert_sizeof(struct idt_info_struct, 6);
 
 static struct idt_info_struct idt_info = {
-	.size = 1,
+	.size = 7,
 	.idt_ptr = (uintptr_t)idt
 };
 

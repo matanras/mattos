@@ -9,7 +9,7 @@ void init_interrupts(void)
         return;
 
     native_disable_interrupts();
-    /* init_8259A(ISA_INTERUPTS_VECTOR, ISA_INTERUPTS_VECTOR + 8); */
+    init_8259A(ISA_INTERUPTS_VECTOR, ISA_INTERUPTS_VECTOR + 8);
     idt_load();
     native_enable_interrupts();
 }

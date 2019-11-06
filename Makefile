@@ -34,4 +34,4 @@ clean:
 
 .PHONY: run
 run: all
-	@qemu-system-x86_64 -d int os-image
+	@qemu-system-x86_64 os-image
