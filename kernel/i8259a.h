@@ -40,16 +40,27 @@
 #define PIC_ICW4_MASTER						 9 /* tells the PIC it's the master */
 #define PIC_ICW4_SPECIAL_FULLY_NESTED_MODE  16
 
+#define PIC_OCW2_EOI                        32 /* non-specific EOI */
+
+enum i8259A_type {
+    i8925A_MASTER,
+    i8925A_SLAVE
+};
+
 /**
  * init_8259A - initialize the 8259A PIC and map the IRQ lines of the master
  * and the slave.
  * @master_offset: IDT offset to which the master's IRQs will be mapped.
  * @slave_offset: IDT offset to which the slave's IRQs will be mapped.
  */
-void init_8259A(int master_offset, int slave_offset);
+void i8259A_init(int master_offset, int slave_offset);
 
-void shutdown_8259A(void);
+void i8259A_shutdown(void);
 
-bool probe_8259A(void);
+void i8259A_set_mask(enum i8259A_type type, uint8_t mask);
+
+bool i8259A_probe(void);
+
+void i8259A_ack_irq(enum i8259A_type type);
 
 #endif /* _8259A_H */

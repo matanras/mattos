@@ -5,11 +5,11 @@
 
 void init_interrupts(void)
 {
-    if (!probe_8259A())
+    if (!i8259A_probe())
         return;
 
     native_disable_interrupts();
-    init_8259A(ISA_INTERUPTS_VECTOR, ISA_INTERUPTS_VECTOR + 8);
+    i8259A_init(ISA_INTERUPTS_VECTOR, ISA_INTERUPTS_VECTOR + 8);
     idt_load();
     native_enable_interrupts();
 }
