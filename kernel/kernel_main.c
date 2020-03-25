@@ -1,4 +1,5 @@
 #include <vga.h>
+#include <keyboard.h>
 #include <interrupt.h>
 
 void char_to_hex(char c, char hex_str[3])
@@ -21,25 +22,26 @@ void char_to_hex(char c, char hex_str[3])
 }
 
 char arr[8];
-
-#include <kernel.h>
-#include <idt.h>
-#include <interrupt.h>
-#include <i8259a.h>
-#include <io.h>
-
-__attribute__((interrupt())) void handle_keyboard(struct interrupt_frame *frame)
-{
-	uint8_t key = inb(0x60);
-	vga_print_string("key.\n");
-	i8259A_ack_irq(i8925A_MASTER);
-}
+// #include <io.h>
+// #include <i8259a.h>
+// __interrupt void handler(struct interrupt_frame *frame)
+// {
+// 	(void)inb(0x60);
+// 	vga_print_string("helo\n");
+// 	i8259A_ack_irq(i8259A_MASTER);
+// }
 
 void main(void)
 {
+	vga_print_string("Kernel init started.\n");
 	init_interrupts();
-	vga_print_string("registered keyboard irq handler.\n");
-	idt_add_interrupt_entry(ISA_INTERUPTS_VECTOR + 1, handle_keyboard);
-	i8259A_set_mask(i8925A_MASTER, 0xfd);
+
+	if (!keyboard_init()) {
+		vga_print_string("Failed to initialize keyboard\n");
+	}
+	// interrupt_add(ISA_INTERUPTS_VECTOR + 1, handler);
+	// i8259A_set_mask(i8259A_MASTER, ~2);
+	while (1);
+
 	/* while (1); */
 } 

@@ -10,6 +10,8 @@ __packed struct interrupt_frame {
     uint32_t eflags;
 };
 
+typedef void(*interrupt_handler_t)(struct interrupt_frame *frame);
+
 #define __interrupt __attribute__((interrupt))
 
 #define CPU_INTERRUPTS_VECTOR		0x00 /* irqs 0x00-0x1f */
@@ -29,5 +31,7 @@ static inline void native_enable_interrupts(void)
 }
 
 void init_interrupts(void);
+
+void interrupt_add(int vector, interrupt_handler_t handler);
 
 #endif /* _INTERRUPTS_H */
