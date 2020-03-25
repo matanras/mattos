@@ -7,7 +7,7 @@ SECTIONS
 {
 	.bootsector bootsector_addr : AT(bootsector_addr)
 	{
-		FILL(0xebfe)
+		FILL(0xebfe) /* fill with jmp $ */
 		__bootsector_start__ = .;
 		*(.bootsector.text)
 		*(.bootsector.data)
