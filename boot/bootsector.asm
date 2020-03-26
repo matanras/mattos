@@ -1,4 +1,10 @@
-[org 0x7c00]
+[section .bootsector.text]
+[bits 16]
+extern __kernel_num_sectors__
+extern __kernel_code_start__
+
+global start
+start:
     mov [boot_drive], dl
     xor ax, ax
     mov ds, ax
@@ -8,7 +14,7 @@
     mov sp, 0x8000
     sti
     mov bp, sp ; set the stack safely away from us
-    
+
     push BOOTLOADER_BANNER
     call print_string
     add sp, 2
@@ -27,7 +33,6 @@ _disk_load:
     push DISK_SUCCESS
     call print_string
     add sp, 2
-
 _enter_protected_mode:
     cli ; disable irqs
     lgdt [GDT_DESCRIPTOR] ; load gdt
@@ -61,12 +66,12 @@ _init_pm:
 
     mov ebp, 0x9000
     mov esp, ebp
-    call KERNEL_OFFSET
+    call __kernel_code_start__
     jmp $
 
 %include "string.asm"
 
-KERNEL_OFFSET equ 0x1000
+section .bootsector.data
 
 gdt_start:
 gdt_null:
@@ -101,18 +106,14 @@ DATA_SEG equ gdt_data - gdt_start
 DAP:
 dap_size: db 0x10
 dap_padding: db 0
-dap_num_sectors: dw 17
-dap_buffer_offset: dw KERNEL_OFFSET
+dap_num_sectors: dw __kernel_num_sectors__
+dap_buffer_offset: dw __kernel_code_start__
 dap_buffer_segment: dw 0
 dap_lower_lba_dword: dd 1
 dap_upper_lba_dword: dd 0
 
-boot_drive: db 0
-BOOTLOADER_BANNER: db `Mattos bootloader.\r\n`, 0
-LBA_UNSUPPORTED: db `LBA addressing mode unsupported.\r\n`, 0
-DISK_ERROR: db `Disk error.\r\n`, 0
-DISK_SUCCESS: db `Read kernel from disk.\r\n`, 0
-
-; Magic number
-times 510 - ($-$$) db 0
-dw 0xaa55
+boot_drive db 0
+BOOTLOADER_BANNER db `Mattos bootloader.\r\n`, 0
+LBA_UNSUPPORTED db `LBA addressing mode unsupported.\r\n`, 0
+DISK_ERROR db `Disk error.\r\n`, 0
+DISK_SUCCESS db `Read kernel from disk.\r\n`, 0

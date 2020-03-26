@@ -16,33 +16,54 @@ _print_string_done:
 	pop bp
 	ret
 
-[bits 32]
-print_string_pm:
-	push ebp
-	mov ebp, esp
-	push eax
-	push ebx
-	push edx
+dump:
+	push bp
+	mov bp, sp
+	push bx
+	push cx
+	push dx
+	push si
+	
+	mov bx, [bp + 4] ; buf
+	mov cx, [bp + 6] ; count
+_dump_loop:
+	test cx, cx
+	jz _done
+	mov dl, byte [bx]
+	xor ax, ax
+	mov al, dl
+	shr al, 4
+	mov si, ASCII_LUT
+	add si, ax
+	mov al, [si]
+	mov ah, 0xe
+	int 0x10
+	xor ax, ax
+	mov al, dl
+	and al, 0x0f
+	mov si, ASCII_LUT
+	add si, ax
+	mov al, byte [si]
+	mov ah, 0xe
+	int 0x10
+	mov al, ' '
+	int 0x10
+	inc bx
+	dec cx
+	jmp _dump_loop
 
-	mov ebx, [ebp + 8]
-	mov edx, VGA_BUFFER
-	mov ah, WHITE_ON_BLACK
-_print_string_pm_loop:
-	mov al, [ebx]
-	test al, al
-	jz _print_string_pm_done
-	mov [edx], al
-	mov [edx + 1], ah
-	inc ebx
-	add edx, 2
-	jmp _print_string_pm_loop
+_done:
+	mov ah, 0xe
+	mov al, `\r`
+	int 0x10
+	mov al, `\n`
+	int 0x10
 
-_print_string_pm_done:
-	pop edx
-	pop ebx
-	pop eax
-	pop ebp
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop bp
 	ret
 
-VGA_BUFFER equ 0xb8000
-WHITE_ON_BLACK equ 0x0f
+ASCII_LUT: db '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'

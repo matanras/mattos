@@ -77,7 +77,6 @@ static struct idt_info_struct idt_info = {
 	.size = sizeof(idt),
 	.idt_ptr = (uintptr_t)idt
 };
-#include <vga.h>
 
 void idt_add_interrupt_entry(int entry, void *isr)
 {
@@ -119,7 +118,6 @@ static inline void native_store_idt(struct idt_info_struct *dtr)
 
 void idt_load(void)
 {
-	struct idt_data *iter;
 	size_t idt_data_size = ARRAY_SIZE(idt_data);
 	size_t i;
 
@@ -150,5 +148,7 @@ void idt_load(void)
 	idt[8].flags.descriptor_privilege_level = 0;
 	idt[8].flags.present = 1;
 	idt[8].offset_2 = ((uintptr_t)double_fault & 0xffff) >> 16; */
+	native_disable_interrupts();
 	native_load_idt(&idt_info);
+	native_enable_interrupts();
 }

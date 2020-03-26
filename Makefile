@@ -1,32 +1,37 @@
 CC = gcc
 LD = ld
-CFLAGS = -I"drivers/"			\
-		 -I"kernel/"			\
-		 -mgeneral-regs-only	\
-		 -mno-red-zone			\
+INCLUDES = 	-I"drivers/"	\
+	 		-I"kernel/"
+	
+	
+CFLAGS = -mgeneral-regs-only	\
+	 	 -mno-red-zone			\
+	 	 -ffreestanding			\
+	 	 -m32					\
+	 	 -fno-pie				\
+		 -Wall					\
+		 -Werror				\
+		 $(INCLUDES)
 
 C_SOURCES = $(wildcard  kernel/*.c drivers/*.c)
+ASM_SOURCES = $(wildcard kernel/*.asm drivers/*.asm)
 HEADERS = $(wildcard  kernel/*.h drivers/*.h)
-OBJ = $(C_SOURCES:.c=.o)
+OBJ = $(C_SOURCES:.c=.o) $(ASM_SOURCES:.asm=.o)
 
 .PHONY: all
 all: os-image
 
-os-image: bootsector.bin kernel.bin
-	@cat $^ > $@
-
-# Build  the  kernel binary
-kernel.bin: kernel/kernel_entry.o $(OBJ)
-	@$(LD) -e main -Ttext 0x1000 $^ -o $@ --oformat binary -m elf_i386
+os-image: bootsector.o $(OBJ)
+	@$(LD) -T linker.ld -o $@ -m elf_i386 $^
 
 %.o: %.c $(HEADERS)
-	@$(CC) -fno-pie -ffreestanding -m32 -c $< -o $@ $(CFLAGS)
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 %.o: %.asm
-	@nasm $< -f elf -o $@
+	@nasm -f elf -o $@ $<
 
-bootsector.bin: boot/bootsector.asm boot/string.asm
-	@nasm -f bin -I boot/ $< -o $@
+bootsector.o: boot/bootsector.asm boot/string.asm
+	@nasm -f elf -I boot/ $< -o $@
 
 .PHONY: clean
 clean:

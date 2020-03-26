@@ -59,7 +59,6 @@ static inline int get_current_row(int mem_offset)
 static int handle_scrolling(int cursor_offset, char attribute)
 {
 	int cell;
-	volatile char *last_row;
 	volatile char *video_mem = (volatile char *)VGA_BUFFER_ADDR;
 
 	if (cursor_offset < VGA_PAGE_SIZE)
@@ -93,7 +92,6 @@ void vga_print_string_color(const char *str, enum VGA_COLOR foreground, enum VGA
 {
 	char attribute = 0;
 	int mem_offset;
-	int current_row;
 	int c;
 	volatile char *video_mem = (volatile char *)VGA_BUFFER_ADDR;
 
@@ -103,6 +101,7 @@ void vga_print_string_color(const char *str, enum VGA_COLOR foreground, enum VGA
 	c = *str;
 
 	while (c != '\0') {
+		
 		if (c != '\n') {
 			video_mem[mem_offset++] = c;
 			video_mem[mem_offset++] = attribute;
@@ -123,7 +122,6 @@ void vga_print_char_at(char c, int column, int row,
 {
 	char attribute = 0;
 	int mem_offset;
-	int current_row;
 	volatile char *video_mem = (volatile char *)VGA_BUFFER_ADDR;
 
 	attribute = (background << 4);
