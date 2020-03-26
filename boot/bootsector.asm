@@ -2,6 +2,7 @@
 [bits 16]
 extern __kernel_num_sectors__
 extern __kernel_code_start__
+extern __kernel_num_dwords__
 
 global start
 start:
@@ -11,13 +12,33 @@ start:
     mov es, ax
     cli
     mov ss, ax
-    mov sp, 0x8000
+    mov sp, 0x7c00
     sti
     mov bp, sp ; set the stack safely away from us
 
     push BOOTLOADER_BANNER
     call print_string
     add sp, 2
+
+_test_a20_on:
+    not ax ; ax = 0xffff
+    mov es, ax
+    mov di, 0x500
+    mov si, 0x510
+    mov al, byte [ds:di]
+    push ax ; save old byte
+    mov al, byte [es:si]
+    push ax ; save old byte
+    mov byte [ds:di], 0x0
+    mov byte [es:si], 0xff
+    cmp byte [ds:di], 0xff
+    pop ax
+    mov byte [es:si], al ; restore old byte
+    pop ax
+    mov byte [ds:di], al ; restore old byte
+    xor ax, ax
+    mov es, ax ; restore es
+    jne _a20_off
 
     mov ah, 0x41
     mov dl, [boot_drive]
@@ -43,6 +64,11 @@ _enter_protected_mode:
                          ; the far jump causes the CPU to flush its cache and pipeline
                          ; which may consist of invalid real-mode instructions
 
+_a20_off:
+    push A20_OFF
+    call print_string
+    add sp, 2
+    jmp $
 _lba_unsupported:
     push LBA_UNSUPPORTED
     call print_string
@@ -64,7 +90,11 @@ _init_pm:
     mov fs, ax
     mov gs, ax
 
-    mov ebp, 0x9000
+    mov esi, KERNEL_TEMP_ADDR
+    mov edi, __kernel_code_start__
+    mov ecx, __kernel_num_dwords__
+    rep movsd ; copy kernel
+    mov ebp, 0x9000 ; setup kernel stack
     mov esp, ebp
     call __kernel_code_start__
     jmp $
@@ -72,6 +102,8 @@ _init_pm:
 %include "string.asm"
 
 section .bootsector.data
+
+KERNEL_TEMP_ADDR equ 0x7e00
 
 gdt_start:
 gdt_null:
@@ -107,13 +139,14 @@ DAP:
 dap_size: db 0x10
 dap_padding: db 0
 dap_num_sectors: dw __kernel_num_sectors__
-dap_buffer_offset: dw __kernel_code_start__
+dap_buffer_offset: dw KERNEL_TEMP_ADDR
 dap_buffer_segment: dw 0
 dap_lower_lba_dword: dd 1
 dap_upper_lba_dword: dd 0
 
 boot_drive db 0
 BOOTLOADER_BANNER db `Mattos bootloader.\r\n`, 0
+A20_OFF db 'Turn on A20 gate.', 0
 LBA_UNSUPPORTED db `LBA addressing mode unsupported.\r\n`, 0
 DISK_ERROR db `Disk error.\r\n`, 0
 DISK_SUCCESS db `Read kernel from disk.\r\n`, 0
