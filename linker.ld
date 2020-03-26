@@ -1,7 +1,7 @@
 ENTRY(main)
 OUTPUT_FORMAT("binary")
 bootsector_addr = 0x7c00;
-kernel_addr = 0xa000;
+kernel_addr = 0x100000;
 
 SECTIONS
 {
@@ -12,6 +12,7 @@ SECTIONS
 		*(.bootsector.text)
 		*(.bootsector.data)
 		__bootsector_end__ = .;
+		ASSERT(__bootsector_end__ - __bootsector_start__ < 510, "Bootsector exceeds 510 bytes!");
 		. += 510 - (__bootsector_end__ - __bootsector_start__);
 		BYTE(0x55)
 		BYTE(0xaa)
@@ -35,6 +36,7 @@ SECTIONS
 	}
 
 	__kernel_num_sectors__ = ((. - __kernel_code_start__) / 512) + 1;
+	__kernel_num_dwords__ = ((. - __kernel_code_start__) / 4) + 1;
 
 	.bss :
 	{
