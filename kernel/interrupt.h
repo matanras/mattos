@@ -1,5 +1,4 @@
-#ifndef _INTERRUPTS_H
-#define _INTERRUPTS_H
+#pragma once
 
 #include <stdint.h>
 #include <kernel.h>
@@ -33,5 +32,3 @@ static inline void native_enable_interrupts(void)
 void init_interrupts(void);
 
 void interrupt_add(int vector, interrupt_handler_t handler);
-
-#endif /* _INTERRUPTS_H */

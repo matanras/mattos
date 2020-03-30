@@ -1,5 +1,4 @@
-#ifndef _KERNEL_H
-#define _KERNEL_H
+#pragma once
 
 #define static_assert(expr, msg) _Static_assert(expr, msg)
 
@@ -14,5 +13,3 @@
 #define __packed __attribute__((packed))
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
-
-#endif /* _KERNEL_H */

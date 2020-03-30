@@ -1,5 +1,4 @@
-#ifndef _KERNEL_CTYPE_H
-#define _KERNEL_CTYE_H
+#pragma once
 
 #include <stdbool.h>
 
@@ -18,5 +17,3 @@ static inline int isxdigit(int ch)
 
 	return (ch >= 'A') && (ch <= 'F');
 }
-
-#endif /* _KERNEL_CTYE_H */

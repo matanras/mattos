@@ -1,5 +1,4 @@
-#ifndef _IO_H
-#define _IO_H
+#pragma once
 
 #include <stdint.h>
 #include <stddef.h>
@@ -59,5 +58,3 @@ BUILDIO(l, , uint32_t)
  */
 void memcpy_io(volatile void *dst, const volatile void *src, size_t size);
 void memset_io(volatile void *dst, int val, size_t size);
-
-#endif /* _IO_H */

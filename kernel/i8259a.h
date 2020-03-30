@@ -2,8 +2,7 @@
  * This header includes definitions for controlling the 8259A PIC.
  */
 
-#ifndef _8259A_H
-#define _8259A_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -30,5 +29,3 @@ int i8259A_get_mask(enum i8259A_type type);
 bool i8259A_probe(void);
 
 void i8259A_ack_irq(enum i8259A_type type);
-
-#endif /* _8259A_H */

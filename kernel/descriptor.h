@@ -1,5 +1,4 @@
-#ifndef _DESCRIPTOR_H
-#define _DESCRIPTOR_H
+#pragma once
 
 #include <stdint.h>
 #include <kernel.h>
@@ -19,5 +18,3 @@ union selector{
     uint16_t value;
 };
 static_assert_sizeof(union selector, sizeof(uint16_t));
-
-#endif /* _DESCRIPTOR_H */
